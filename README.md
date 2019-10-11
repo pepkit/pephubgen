@@ -12,7 +12,7 @@ See: `packagename --help` for details.
 
 ## Make it yours
 
-You can edit these files to replace `packagename` everywhere with the name of the tool you want to create. Then, just make the function call whatever python code you need it to.
+Just copy all the files in this repository into a new repository and then edit them. You can edit these files to replace `packagename` everywhere with the name of the tool you want to create. Then, just make the function call whatever python code you need it to.
 
 ## Explanation
 
