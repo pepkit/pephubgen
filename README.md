@@ -26,6 +26,11 @@ entry_points={
 },    
 ```
 
+Here `packagename = ...` is the command that will eventually be created; and
+then `packagename.packagename` are 1) the name of the folder and then 2) the
+name of the file that you want the command to run. Finally, `:main` says to run
+the main function in that file.
+
 ### Logmuse
 
 This package sets you up automatically to use the *logmuse* package, which gives
