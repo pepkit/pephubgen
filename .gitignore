@@ -72,6 +72,7 @@ open_pipelines/
 
 # Build-related stuff
 dist/
+build/
 *.egg-info/
 
 # ignore virtual environments
