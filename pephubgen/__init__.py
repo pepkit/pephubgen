@@ -6,4 +6,4 @@ from ._version import __version__
 __classes__ = []
 __all__ = __classes__ + []
 
-logmuse.init_logger("packagename")
+logmuse.init_logger("pephubgen")

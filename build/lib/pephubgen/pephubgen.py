@@ -2,7 +2,11 @@
 
 import argparse
 import logmuse
-import os
+import sys
+import tempfile
+
+from pephubgen.db import download_peps, load_data_tree
+from .const import PEPHUB_URL
 from . import __version__
 
 
@@ -33,12 +37,14 @@ def build_argparser():
             version="%(prog)s {v}".format(v=__version__))
 
     parser.add_argument(
-            "-i", "--input", required=True,
-            help="File path to input file.")
-
+            "-d", "--data", required=False,
+            default=PEPHUB_URL,
+            help="URL/Path to PEP storage tree.")
+    
     parser.add_argument(
-            "-p", "--parameter", type=int, default=0,
-            help="Some parameter.")
+            "-o", "--out", required=False,
+            default="./",
+            help="Outpath for generated PEP tree.")
 
     return parser
 
@@ -52,9 +58,16 @@ def main():
     args = parser.parse_args()
     global _LOGGER
     _LOGGER = logmuse.logger_via_cli(args, make_root=True)
+    _LOGGER.info(f"Reading PEPs from {args.data}")
 
-    msg = "Input: {input}; Parameter: {parameter}"
-    _LOGGER.info(msg.format(input=args.input, parameter=args.parameter))
+    with tempfile.TemporaryDirectory() as tmp:
+        # download peps
+        download_peps(
+            args.data,
+            tmp
+        )
+        PEP_TREE = load_data_tree(tmp)
+        print(PEP_TREE)
 
 if __name__ == '__main__':
     try:

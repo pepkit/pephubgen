@@ -4,7 +4,7 @@ import os
 from setuptools import setup
 import sys
 
-PACKAGE = "packagename"
+PACKAGE = "pephubgen"
 
 # Additional keyword arguments for setup().
 extra = {}
@@ -46,15 +46,15 @@ setup(
     ],
     keywords="",
     url="https://databio.org",
-    author=u"Nathan Sheffield",
-    author_email=u"nathan@code.databio.org", 
+    author=u"Nathan LeRoy",
+    author_email=u"nleroy917@gmail.com", 
     license="BSD2",
     entry_points={
         "console_scripts": [
-            'packagename = packagename.packagename:main'
+            'pephubgen = pephubgen.pephubgen:main'
         ],
     },    
-    package_data={"packagename": [os.path.join("packagename", "*")]},
+    package_data={"pephubgen": [os.path.join("pephubgen", "*")]},
     include_package_data=True,
     test_suite="tests",
     tests_require=(["pytest"]),
