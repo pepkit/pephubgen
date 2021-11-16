@@ -6,6 +6,7 @@ import sys
 import tempfile
 
 from pephubgen.db import download_peps, load_data_tree
+from .generator import Generator
 from .const import PEPHUB_URL
 from . import __version__
 
@@ -43,8 +44,13 @@ def build_argparser():
     
     parser.add_argument(
             "-o", "--out", required=False,
-            default="./",
+            default="./out",
             help="Outpath for generated PEP tree.")
+    
+    parser.add_argument(
+            "-s", "--serve", required=False,
+            action="store_true",
+            help="Run server to explore files when done")
 
     return parser
 
@@ -67,6 +73,24 @@ def main():
             tmp
         )
         PEP_TREE = load_data_tree(tmp)
+
+        # generate static files
+        g = Generator()
+        g.generate(
+            PEP_TREE, 
+            path="./out"
+        )
+
+    if args.serve:
+        from http.server import HTTPServer, SimpleHTTPRequestHandler
+        _LOGGER.info("Serving files at http://localhost:8000")
+        httpd = HTTPServer(('localhost', 8000), SimpleHTTPRequestHandler)
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            _LOGGER.info("Goodbye.")
+            sys.exit(0)
+    
 
 if __name__ == '__main__':
     try:
