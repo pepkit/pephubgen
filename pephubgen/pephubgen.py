@@ -5,7 +5,7 @@ import logmuse
 import sys
 import tempfile
 
-from pephubgen.db import download_peps, load_data_tree
+from .db import download_peps, load_data_tree
 from .generator import Generator
 from .const import PEPHUB_URL
 from . import __version__
@@ -60,27 +60,20 @@ def build_argparser():
 def main():
     """ Primary workflow """
 
-    parser = logmuse.add_logging_options(build_argparser())
+    parser = logmuse.add_logging_options(
+        build_argparser(),
+    )
     args = parser.parse_args()
     global _LOGGER
-    _LOGGER = logmuse.logger_via_cli(args, make_root=True)
+    _LOGGER = logmuse.logger_via_cli(
+        args, 
+        make_root=True,
+        fmt="[pephubgen] -----> %(message)s"
+    )
     _LOGGER.info(f"Reading PEPs from {args.data}")
 
-    with tempfile.TemporaryDirectory() as tmp:
-        # download peps
-        download_peps(
-            args.data,
-            tmp
-        )
-        PEP_TREE = load_data_tree(tmp)
-
-        # generate static files
-        g = Generator()
-        g.generate(
-            PEP_TREE, 
-            path="./out"
-        )
-
+    # catch serve argument and
+    # start server
     if args.serve:
         from http.server import HTTPServer, SimpleHTTPRequestHandler
         _LOGGER.info("Serving files at http://localhost:8000")
@@ -90,6 +83,23 @@ def main():
         except KeyboardInterrupt:
             _LOGGER.info("Goodbye.")
             sys.exit(0)
+
+    # else generate
+    else:
+        with tempfile.TemporaryDirectory() as tmp:
+            # download peps
+            download_peps(
+                args.data,
+                tmp
+            )
+            PEP_TREE = load_data_tree(tmp)
+
+            # generate static files
+            g = Generator()
+            g.generate(
+                PEP_TREE, 
+                path="./out"
+            )
     
 
 if __name__ == '__main__':

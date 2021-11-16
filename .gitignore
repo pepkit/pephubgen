@@ -81,7 +81,9 @@ venv/
 .venv/
 .env/
 
-
 #ipynm checkpoints
 *ipynb_checkpoints*
 *.egg-info*
+
+# package stuff
+out/
