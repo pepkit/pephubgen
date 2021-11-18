@@ -25,7 +25,7 @@ def build_argparser():
     :return argparse.ArgumentParser
     """
 
-    banner = "%(prog)s - randomize BED files"
+    banner = "%(prog)s - generate a static file representation of a PEP data repository."
     additional_description = "\n..."
 
     parser = _VersionInHelpParser(
@@ -48,14 +48,45 @@ def build_argparser():
             help="Outpath for generated PEP tree.")
     
     parser.add_argument(
-            "-s", "--serve", required=False,
-            action="store_true",
-            help="Run server to explore files when done")
+            "-p", "--path", required=False,
+            help="Path to serve the file server at."
+    )
+
+    # parser for serve command
+    subparsers = parser.add_subparsers(
+        help="Functions",
+        dest="serve"
+    )
+    serve_parser = subparsers.add_parser("serve", help="Serve a directory using pythons built-in http library")
+    serve_parser.set_defaults(
+        func=serve_directory
+    )
+    serve_parser.add_argument(
+        "-f", "--files", required=False,
+        help="Files to serve.",
+        default="./out"
+    )
 
     return parser
 
 
+def serve_directory(args):
+    from http.server import HTTPServer, SimpleHTTPRequestHandler
+    import os
 
+    # remember current dir to return
+    pwd = os.getcwd()
+
+    _LOGGER.info("Serving files at http://localhost:8000")
+
+    httpd = HTTPServer(('localhost', 8000), SimpleHTTPRequestHandler)
+    try:
+        os.chdir(args.files)
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        os.chdir(pwd)
+        _LOGGER.info("Goodbye.")
+        sys.exit(0)
 
 def main():
     """ Primary workflow """
@@ -64,25 +95,21 @@ def main():
         build_argparser(),
     )
     args = parser.parse_args()
+    
     global _LOGGER
     _LOGGER = logmuse.logger_via_cli(
         args, 
         make_root=True,
         fmt="[pephubgen] -----> %(message)s"
     )
+
     _LOGGER.info(f"Reading PEPs from {args.data}")
 
     # catch serve argument and
     # start server
     if args.serve:
-        from http.server import HTTPServer, SimpleHTTPRequestHandler
-        _LOGGER.info("Serving files at http://localhost:8000")
-        httpd = HTTPServer(('localhost', 8000), SimpleHTTPRequestHandler)
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            _LOGGER.info("Goodbye.")
-            sys.exit(0)
+        args.func(args)
+    
 
     # else generate
     else:
@@ -98,7 +125,7 @@ def main():
             g = Generator()
             g.generate(
                 PEP_TREE, 
-                path="./out"
+                path=args.out
             )
     
 
